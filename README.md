@@ -68,7 +68,9 @@ terraform apply
 
 Now that the infrastructure has been deployed, you can build the app container and deploy it on top of the infrastructure.
 
-*Note that if you changed the app name from `ai-chatbot` to something else, you'll need to pass that to the make command using the `app` parameter (or change it at the top of `Makefile`).
+If you changed the app name from `ai-chatbot` to something else, you'll need to pass that to the make command using the `app` parameter (or change it at the top of `Makefile`).
+
+Before deploying, you should consider changing the [system](./prompts/claude3/haiku-v1/system.md) and [user](./prompts/claude3/haiku-v1/user.md) prompts to match your specific requirements.
 
 The first time you deploy you can run the following to build the base image and app image together.
 
