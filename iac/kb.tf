@@ -134,3 +134,55 @@ data "aws_iam_policy_document" "kb" {
     resources = [local.bedrock_user_secret]
   }
 }
+
+# schedule periodic KB syncs
+resource "aws_scheduler_schedule" "main" {
+  name                = "${var.name}-kb-sync"
+  schedule_expression = "rate(1 days)"
+
+  target {
+    arn      = "arn:aws:scheduler:::aws-sdk:bedrockagent:startIngestionJob"
+    role_arn = aws_iam_role.event_bridge_scheduler.arn
+
+    input = jsonencode({
+      KnowledgeBaseId = aws_bedrockagent_knowledge_base.main.id
+      DataSourceId    = aws_bedrockagent_data_source.main.data_source_id
+    })
+  }
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+}
+
+resource "aws_iam_role" "event_bridge_scheduler" {
+  name = "${var.name}-event-bridge-scheduler-role"
+
+  assume_role_policy = <<-EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "scheduler.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  }
+  EOF
+}
+
+data "aws_iam_policy_document" "kb_sync" {
+  statement {
+    effect    = "Allow"
+    actions   = ["bedrock:StartIngestionJob"]
+    resources = [aws_bedrockagent_knowledge_base.main.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "event_bridge_scheduler" {
+  role   = aws_iam_role.event_bridge_scheduler.name
+  policy = data.aws_iam_policy_document.kb_sync.json
+}
