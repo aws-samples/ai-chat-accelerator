@@ -134,23 +134,3 @@ data "aws_iam_policy_document" "kb" {
     resources = [local.bedrock_user_secret]
   }
 }
-
-# schedule periodic KB syncs
-resource "aws_scheduler_schedule" "main" {
-  name                = "${var.name}-kb-sync"
-  schedule_expression = "rate(1 days)"
-
-  target {
-    arn      = "arn:aws:scheduler:::aws-sdk:bedrockagent:startIngestionJob"
-    role_arn = aws_iam_role.event_bridge_scheduler.arn
-
-    input = jsonencode({
-      KnowledgeBaseId = aws_bedrockagent_knowledge_base.main.id
-      DataSourceId    = aws_bedrockagent_data_source.main.data_source_id
-    })
-  }
-
-  flexible_time_window {
-    mode = "OFF"
-  }
-}
