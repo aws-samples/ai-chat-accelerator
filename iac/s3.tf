@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "main" {
-  bucket        = "${var.name}-documents-${data.aws_caller_identity.current.account_id}"
+  bucket        = "${var.name}-documents-${local.account_id}"
   force_destroy = true
 }
 

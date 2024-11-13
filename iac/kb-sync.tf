@@ -80,7 +80,7 @@ resource "awscc_logs_delivery" "kb_logs" {
 }
 
 resource "aws_s3_bucket" "kb_logs" {
-  bucket = "${var.name}-kb-logs"
+  bucket = "${var.name}-kb-logs-${local.account_id}"
 }
 
 resource "aws_s3_bucket_public_access_block" "kb_logs" {
