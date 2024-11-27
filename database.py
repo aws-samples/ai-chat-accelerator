@@ -38,15 +38,14 @@ class Database():
             password=self.password
         )
 
-    def new(self, created):
+    def new(self, user_id, created):
         """creates a new conversation"""
 
         id = str(uuid.uuid4())
-        user = "1"  # TODO: get from auth
 
         conversation = {
             "conversationId": id,
-            "userId": user,
+            "userId": user_id,
             "created": created,
             "questions": []
         }
@@ -55,7 +54,7 @@ class Database():
             INSERT INTO conversation (conversation_id, created, user_id, data)
             VALUES (%s, %s, %s, %s)
         """
-        values = (id, created, user, json.dumps(conversation, default=str))
+        values = (id, created, user_id, json.dumps(conversation, default=str))
         logging.info(f"query: {query}")
         logging.info(f"values: {values}")
 
@@ -106,6 +105,26 @@ class Database():
         """
         logging.info(f"query: {query}")
         values = (top,)
+        logging.info(f"values: {values}")
+        with self.connect() as conn:
+            records = conn.execute(query, values).fetchall()
+
+        results = []
+        for record in records:
+            results.append(record[0])
+        return results
+
+    def list_by_user(self, user_id, top):
+        """fetch a list of conversations by user"""
+
+        query = """
+            SELECT data FROM conversation
+            WHERE user_id = %s
+            ORDER BY created DESC
+            LIMIT %s
+        """
+        logging.info(f"query: {query}")
+        values = (user_id, top,)
         logging.info(f"values: {values}")
         with self.connect() as conn:
             records = conn.execute(query, values).fetchall()

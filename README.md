@@ -228,6 +228,50 @@ curl -s $endpoint/api/conversations/d61e143c-a32d-4b4f-aa4e-a0fe94082e77 | jq
 ```
 </details>
 
+### GET /api/conversations/users/{id}
+
+Return the latest 10 conversations for a user
+
+```sh
+curl -s $endpoint/api/conversations/users/1 | jq
+```
+<details>
+<summary>output</summary>
+
+```json
+[
+  {
+    "conversationId": "d61e143c-a32d-4b4f-aa4e-a0fe94082e77",
+    "created": "2024-04-10T22:04:36.813819+00:00",
+    "questions": [
+      {
+        "a": "...",
+        "created": "2024-04-10 22:04:40.657402+00:00",
+        "q": "..."
+      }
+    ],
+    "userId": "1"
+  },
+  {
+    "conversationId": "aaddc6aa-7c51-4b0a-800d-53e72b05524f",
+    "created": "2024-04-10T22:01:16.071982+00:00",
+    "questions": [
+      {
+        "a": "...",
+        "created": "2024-04-10 22:01:18.500971+00:00",
+        "q": "..."
+      },
+      {
+        "a": "...",
+        "created": "2024-04-10 22:01:27.328482+00:00",
+        "q": "..."
+      }
+    ],
+    "userId": "1"
+  }
+]
+```
+</details>
 
 ## Development
 
