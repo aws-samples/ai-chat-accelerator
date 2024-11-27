@@ -50,10 +50,42 @@ def health_check():
     return "healthy"
 
 
+def get_current_user_id():
+    """get the currently logged in user"""
+    # TODO: get current user id from auth
+    return "1"
+
+
+def get_chat_history(user_id):
+    """
+    fetches the user's latest chat history
+    """
+    logging.info(f"fetching chat history for user {user_id}")
+
+    # fetch last 10 questions from db
+    history = db.list_by_user(user_id, 10)
+
+    # build list of objects that have
+    # the first question in each conversation and the date
+    result = []
+    for h in history:
+        if len(h["questions"]) == 0:
+            continue
+        result.append({
+            "conversationId": h["conversationId"],
+            "created": datetime.fromisoformat(h["created"]).strftime("%B %d, %Y"),
+            "initial_question": h["questions"][0]["q"],
+        })
+    return result
+
+
 @app.route("/")
 def index():
     """home page"""
-    return render_template("index.html", conversation={})
+    user_id = get_current_user_id()
+    return render_template("index.html",
+                           conversation={},
+                           chat_history=get_chat_history(user_id))
 
 
 @app.route("/new", methods=["POST"])
@@ -82,10 +114,12 @@ def ask():
     question = question.rstrip()
     logging.info(f"question: {question}")
 
+    user_id = get_current_user_id()
+
     # if conversation id is blank, start a new one
     # else, fetch conversation history from db
     if id == "":
-        conversation = db.new(datetime.now(timezone.utc).isoformat())
+        conversation = db.new(user_id, datetime.now(timezone.utc).isoformat())
     else:
         conversation = db.get(id)
         logging.info("fetched conversation")
@@ -94,7 +128,18 @@ def ask():
     _, conversation, sources = ask_internal(conversation, question)
 
     # render ui with question history, answer, and top 3 document references
-    return render_template("chat.html", conversation=conversation, sources=sources)
+    return render_template("body.html",
+                           conversation=conversation,
+                           sources=sources,
+                           chat_history=get_chat_history(user_id))
+
+
+@app.route("/conversation/<id>", methods=["GET"])
+def get_conversation(id):
+    """GET /conversation/<id> fetches a conversation by id"""
+
+    conversation = db.get(id)
+    return render_template("chat.html", conversation=conversation)
 
 
 @app.route("/api/ask", methods=["POST"])
@@ -156,6 +201,12 @@ def ask_api(id):
 def conversations_list():
     """fetch top 10 conversations"""
     return db.list(10)
+
+
+@app.route("/api/conversations/users/<user_id>")
+def conversations_get_by_user(user_id):
+    """fetch top 10 conversations for a user"""
+    return db.list_by_user(user_id, 10)
 
 
 @app.route("/api/conversations/<id>")
