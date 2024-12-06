@@ -30,19 +30,29 @@ def generate_message(system_prompt,
 
     logging.info("bedrock.converse()")
 
+    request = {
+        "modelId": model_id,
+        "messages": messages,
+        "system": [{"text": system_prompt}],
+        "inferenceConfig": {
+            "maxTokens": max_tokens,
+            "temperature": temperature,
+            "topP": top_p,
+        },
+    }
+
     response = bedrock.converse(
         modelId=model_id,
         messages=messages,
         system=[{'text': system_prompt}],
         inferenceConfig={
-            'maxTokens': max_tokens,
-            'temperature': temperature,
-            'topP': top_p,
+            "maxTokens": max_tokens,
+            "temperature": temperature,
+            "topP": top_p,
         },
     )
 
-    logging.info("response_body:")
-    log.debug(response)
+    log.llm(request, response)
 
     stop_reason = response["stopReason"]
     if stop_reason != "end_turn":

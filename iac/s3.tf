@@ -11,3 +11,9 @@ resource "aws_s3_bucket_public_access_block" "main" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+# bucket for storing llm logs
+resource "aws_s3_bucket" "llm_logs" {
+  bucket        = "${var.name}-llm-logs-${local.account_id}"
+  force_destroy = true
+}

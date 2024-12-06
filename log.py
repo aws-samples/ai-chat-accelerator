@@ -20,3 +20,12 @@ def info(obj):
     """log object as json if in info mode"""
     if logging.getLogger().level == logging.INFO:
         logging.info(json.dumps(obj, indent=2, default=str))
+
+
+def llm(input, output):
+    """log llm calls to stdout using specific format"""
+    payload = {
+        "input": input,
+        "output": output
+    }
+    print(f"LLM: {json.dumps(payload, default=str)}")

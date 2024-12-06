@@ -7,6 +7,14 @@ An example of a simple, yet scalable, enterprise-ready chatbot that implements t
 ![architecture](./architecture.png)
 
 
+## Key Features
+
+- Implements an AI chat bot using Retrieval Augmented Generation (RAG)
+- Ask questions and get answers
+- See converation history and select to see past converations
+- LLM API calls get logged to an S3 bucket in JSON format (for analysis and testing)
+
+
 ## Usage
 
 Follow the 6 step process below for deploying this solution into your AWS account.
