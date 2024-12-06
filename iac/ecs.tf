@@ -112,7 +112,7 @@ module "ecs_service" {
     },
     {
       actions   = ["bedrock:InvokeModel"]
-      resources = ["arn:aws:bedrock:us-east-1::foundation-model/*"]
+      resources = ["arn:aws:bedrock:${local.region}::foundation-model/*"]
     },
   ]
 
