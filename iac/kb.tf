@@ -44,6 +44,7 @@ resource "aws_bedrockagent_data_source" "main" {
       bucket_arn = aws_s3_bucket.main.arn
     }
   }
+  data_deletion_policy = "RETAIN"
 }
 
 resource "aws_iam_role" "bedrock_kb_role" {
