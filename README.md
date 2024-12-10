@@ -11,6 +11,7 @@ An example of a simple, yet scalable, enterprise-ready chatbot that implements t
 
 - Implements an AI chat bot using Retrieval Augmented Generation (RAG)
 - Ask questions and get answers
+- Follow up questions get reworded using an LLM, so they can refer back to context in previous questions
 - See converation history and select to see past converations
 - LLM API calls get logged to an S3 bucket in JSON format (for analysis and testing)
 
