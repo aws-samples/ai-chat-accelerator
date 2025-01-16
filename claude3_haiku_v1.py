@@ -46,31 +46,11 @@ def generate_message(messages,
     if system_prompt != "":
         request["system"] = [{'text': system_prompt}]
 
-        response = bedrock.converse(
-            modelId=model_id,
-            messages=messages,
-            system=[{'text': system_prompt}],
-            inferenceConfig={
-                "maxTokens": max_tokens,
-                "temperature": temperature,
-                "topP": top_p,
-            },
-        )
-    else:
-        response = bedrock.converse(
-            modelId=model_id,
-            messages=messages,
-            inferenceConfig={
-                "maxTokens": max_tokens,
-                "temperature": temperature,
-                "topP": top_p,
-            },
-        )
+    response = bedrock.converse(**request)
 
     log.llm(request, response)
 
     stop_reason = response["stopReason"]
     if stop_reason != "end_turn":
         raise Exception(f"invalid stopReason returned from model: {stop_reason}")
-
     return response["output"]["message"]["content"][0]["text"]
