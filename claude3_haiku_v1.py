@@ -53,4 +53,5 @@ def generate_message(messages,
     stop_reason = response["stopReason"]
     if stop_reason != "end_turn":
         raise Exception(f"invalid stopReason returned from model: {stop_reason}")
+
     return response["output"]["message"]["content"][0]["text"]
