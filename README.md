@@ -16,6 +16,7 @@ An example of a simple, yet scalable, enterprise-ready chatbot that implements t
 - See conversation history and select to see past converations
 - LLM request/response payloads get logged to an S3 bucket in JSON format (for analysis and testing)
 - Built-in auto scaling architecture (see docs below)
+- OpenTelemetry tracing support using AWS X-Ray
 
 
 ## Usage
@@ -147,6 +148,38 @@ Autoscaling is enabled by default set to a defaul min capacity of 0.5 to 2 ACUs.
 ### Bedrock scaling
 
 Bedrock cross-region model inference is recommended for increasing throughput using [inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html).
+
+
+## OpenTelemetry
+
+This accelerator ships with OpenTelemetry auto instrumented code for flask, postgres, and boto3 via the [aws-opentelemetry-distro](https://pypi.org/project/opentelemetry-distro/) library. It will create traces that are available in [AWS X-Ray](https://aws.amazon.com/xray/). These traces can be useful for understanding how the AI orchestrator is running in production. You can see how an HTTP request is broken down in terms of how much time is spent on various external calls such as calls to the database and calls to LLMs.
+
+![Tracing](./tracing.jpg)
+
+### Disabling tracing
+
+If you'd like to disable the tracing to AWS X-Ray, you can remove the otel sidecar container and dependencies from the ECS task definition as show below.
+
+```
+      dependsOn = [
+        {
+          containerName = "otel"
+          condition     = "HEALTHY"
+        }
+      ]
+    },
+    otel = {
+      image   = "public.ecr.aws/aws-observability/aws-otel-collector:v0.41.2"
+      command = ["--config=/etc/ecs/ecs-default-config.yaml"]
+      healthCheck = {
+        command     = ["/healthcheck"]
+        interval    = 5
+        timeout     = 6
+        retries     = 5
+        startPeriod = 1
+      }
+    },
+```
 
 
 ## API

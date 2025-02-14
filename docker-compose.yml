@@ -17,11 +17,14 @@ services:
     build: .
     platform: linux/amd64
     environment:
+      AWS_REGION: ${AWS_REGION}
       AWS_DEFAULT_REGION: ${AWS_REGION}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
       POSTGRES_HOST: postgres
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4317
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=ai-chatbot.local,service.name=orchestrator
     env_file: .env
     ports:
       - "8080:8080"
@@ -30,6 +33,19 @@ services:
       - no-new-privileges:true
     tmpfs:
       - /app/tmp
+    depends_on:
+      - postgres
+      - otel
+
+  otel:
+    image: public.ecr.aws/aws-observability/aws-otel-collector:latest
+    command: ["--config=/etc/ecs/ecs-default-config.yaml"]
+    environment:
+      AWS_REGION: ${AWS_REGION}
+      AWS_DEFAULT_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
 volumes:
   db:
