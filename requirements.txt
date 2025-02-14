@@ -3,3 +3,5 @@ boto3
 markdown
 psycopg[binary]
 gunicorn
+aws-opentelemetry-distro
+opentelemetry-instrumentation-psycopg
