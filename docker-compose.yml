@@ -1,4 +1,3 @@
-version: "3"
 services:
   postgres:
     container_name: postgres
@@ -29,6 +28,8 @@ services:
     read_only: true
     security_opt:
       - no-new-privileges:true
+    tmpfs:
+      - /app/tmp
 
 volumes:
   db:

@@ -19,6 +19,9 @@ module "ecs_service" {
   name        = var.name
   cluster_arn = module.ecs_cluster.arn
 
+  cpu    = 1024
+  memory = 2048
+
   # supports external task def deployments
   # by ignoring changes to task definition and desired count
   ignore_task_definition_changes = true
