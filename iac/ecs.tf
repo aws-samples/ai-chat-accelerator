@@ -67,10 +67,32 @@ module "ecs_service" {
           "name" : "DB_SECRET_ARN",
           "value" : local.aurora_secret_arn
         },
+        {
+          "name" : "OTEL_RESOURCE_ATTRIBUTES",
+          "value" : "service.namespace=${var.name},service.name=orchestrator"
+        },
       ]
 
       readonly_root_filesystem = false
-    }
+
+      dependsOn = [
+        {
+          containerName = "otel"
+          condition     = "HEALTHY"
+        }
+      ]
+    },
+    otel = {
+      image   = "public.ecr.aws/aws-observability/aws-otel-collector:v0.41.2"
+      command = ["--config=/etc/ecs/ecs-default-config.yaml"]
+      healthCheck = {
+        command     = ["/healthcheck"]
+        interval    = 5
+        timeout     = 6
+        retries     = 5
+        startPeriod = 1
+      }
+    },
   }
 
   load_balancer = {
@@ -117,6 +139,13 @@ module "ecs_service" {
       actions   = ["bedrock:InvokeModel"]
       resources = ["arn:aws:bedrock:${local.region}::foundation-model/*"]
     },
+    {
+      actions = [
+        "xray:PutTraceSegments",
+        "xray:PutTelemetryRecords"
+      ]
+      resources = ["*"]
+    }
   ]
 
   tags = var.tags
