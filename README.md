@@ -9,11 +9,13 @@ An example of a simple, yet scalable, enterprise-ready chatbot that implements t
 
 ## Key Features
 
-- Implements an AI chat bot using Retrieval Augmented Generation (RAG)
+- Deployable in under 15 minutes (instructions below)
 - Ask questions and get answers
+- Implements an AI chat bot using Retrieval Augmented Generation (RAG)
 - Follow up questions get reworded using an LLM, so users can refer back to context in previous questions
-- See converation history and select to see past converations
-- LLM API calls get logged to an S3 bucket in JSON format (for analysis and testing)
+- See conversation history and select to see past converations
+- LLM request/response payloads get logged to an S3 bucket in JSON format (for analysis and testing)
+- Built-in auto scaling architecture (see docs below)
 
 
 ## Usage
@@ -120,6 +122,31 @@ Note that this script calls the `bedrock-agent start-ingestion-job` API.  This j
 ```sh
 open $(terraform output -raw endpoint)
 ```
+
+## Scaling
+
+This architecture can be scaled using two primary levers:
+
+1. ECS horizontal scaling
+2. ECS vertical scaling
+3. Aurora serverless scaling
+4. Bedrock scaling
+
+### ECS horizontal scaling
+
+The preferred method of scaling is horizontal autoscaling. Autoscaling is enabled by default and set to scale from 1 to 10 replicas based on an average service CPU and memory utilization of 75%. See the [Terraform module autoscaling input parameters](https://registry.terraform.io/modules/terraform-aws-modules/ecs/aws/latest/submodules/service?tab=inputs) to fine tune this.
+
+### ECS vertical scaling
+
+The size of the individual fargate tasks can be scaled up using the [cpu and memory parameters](./iac/ecs.tf).
+
+### Aurora serverless scaling
+
+Autoscaling is enabled by default set to a defaul min capacity of 0.5 to 2 ACUs. See the [Terraform module autoscaling example](https://registry.terraform.io/modules/terraform-aws-modules/rds-aurora/aws/latest/examples/autoscaling) to fine tune this.
+
+### Bedrock scaling
+
+Bedrock cross-region model inference is recommended for increasing throughput using [inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html).
 
 
 ## API
