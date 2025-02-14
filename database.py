@@ -4,7 +4,9 @@ import logging
 import json
 import psycopg
 import boto3
+from opentelemetry.instrumentation.psycopg import PsycopgInstrumentor
 
+PsycopgInstrumentor().instrument()
 secrets_manager = boto3.client("secretsmanager")
 
 
