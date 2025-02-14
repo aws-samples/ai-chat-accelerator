@@ -9,6 +9,14 @@ import markdown
 import database
 import orchestrator
 
+# otel
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.botocore import BotocoreInstrumentor
+
 
 def signal_handler(signal, frame):
     logging.warning('SIGTERM received, exiting...')
@@ -17,6 +25,13 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGTERM, signal_handler)
 app = Flask(__name__)
+
+# Setup OpenTelemetry
+tracer_provider = TracerProvider()
+tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+trace.set_tracer_provider(tracer_provider)
+FlaskInstrumentor().instrument_app(app)
+BotocoreInstrumentor().instrument()
 
 
 @app.before_request
