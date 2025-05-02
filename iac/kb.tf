@@ -1,5 +1,5 @@
 locals {
-  embedding_model_arn = "arn:aws:bedrock:${local.region}::foundation-model/amazon.titan-embed-g1-text-02"
+  embedding_model_arn = "arn:aws:bedrock:${local.region}::foundation-model/amazon.titan-embed-text-v1"
 }
 
 resource "aws_bedrockagent_knowledge_base" "main" {
