@@ -40,6 +40,9 @@ sql "CREATE INDEX IF NOT EXISTS bedrock_kb_index ON
   );
 " $USER
 
+# Add the GIN index for the text field
+sql "CREATE INDEX ON ${SCHEMA}.${TABLE} USING gin (to_tsvector('simple', ${TEXT}));" $USER
+
 ###############################################################
 # application SCHEMA
 ###############################################################
